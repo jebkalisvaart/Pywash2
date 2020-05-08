@@ -3,4 +3,12 @@
 venv
 # Optimizer files
 __pycache__/
+<<<<<<< HEAD
 *.pyc
+=======
+MyCod\
+
+
+
+
+>>>>>>> 8703b51180b696861907610056c931430dfb42af
