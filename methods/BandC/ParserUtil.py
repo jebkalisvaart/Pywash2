@@ -1,4 +1,4 @@
-from methods.BandC import *
+from Pywash2.methods.BandC import *
 #from src.Exceptions import FileFormatNotFound
 
 __parsers__ = {'.csv': CSV, '.arff': Arff}
