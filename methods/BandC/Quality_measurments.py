@@ -1,5 +1,7 @@
 import pandas as pd
 from Pywash2.methods.BandC.ParserUtil import assign_parser
+from Pywash2.methods.BandB.ptype.Ptype import Ptype
+
 
 def parse_ability_measure(df):
     '''Checks whether the application read the data appropriately in terms of parsing
@@ -23,6 +25,7 @@ def parse_ability_measure(df):
         print('Quality measurement for parse-ablity = 0')
     return quality_measure
 
+
 def data_storage_measure(df):
     '''
     Checks whether the application can perform algorithms on given data.
@@ -45,6 +48,7 @@ def data_storage_measure(df):
         quality_measure = 0
     return quality_measure
 
+
 def encoding_measure(file_path):
     '''
     Checks whether the automated encoding detection works on the given dataset.
@@ -64,7 +68,37 @@ def encoding_measure(file_path):
         quality_measure = 0
     else:
         quality_measure = 1
-    return(quality_measure)
+    return (quality_measure)
+
+
+def unexpected_values_in_column(df):
+    '''
+    Decides the type of the columns and checks whether there are unexpected types.
+    Parameters
+    ----------
+    df : Dataframe that needs to be checked.
+
+    Returns
+    -------
+    errors : The amount of values that do not have the correct type in the dataframe.
+    '''
+
+    convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
+                   'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
+                   'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
+                   'all-identical': 'category'}
+    ptype = Ptype()
+    ptype.run_inference(df)
+    predicted = ptype.predicted_types
+    types_lst = [convert_dct.get(_type) for _type in predicted.values()]
+    types_dct = dict(zip(predicted.keys(), types_lst))
+    not_as_expected = ptype.get_anomaly_predictions()
+    missing_vals = ptype.get_missing_data_predictions()
+    errors = 0
+    for key in not_as_expected:
+        errors += (len(not_as_expected[key]))
+    return errors
+
 
 def data_formats_measure(df):
     '''
@@ -79,10 +113,13 @@ def data_formats_measure(df):
     -------
     quality_measure : Quality measure in terms of data formatting in the form of an integer.
     '''
-    thomas_zn_algoritme()
-
+    unexpected = unexpected_values_in_column(df)
+    certainty = 1  # The algorithm has an accuracy of above 99%.
+    total_number = df.shape[1] * df.shape[0]
+    number_expected = total_number - unexpected
     quality_measure = certainty * (number_expected / total_number)
     return quality_measure
+
 
 def disjoint_datasets_measure():
     '''
@@ -97,6 +134,7 @@ def disjoint_datasets_measure():
     '''
     quality_measure = 1
     return quality_measure
+
 
 def quality_band_C(df, file_path):
     '''
@@ -115,10 +153,16 @@ def quality_band_C(df, file_path):
     format = data_formats_measure(df)
     disjoint = disjoint_datasets_measure()
 
-    print('The quality of parsing = {}.').format(parse)
-    print('The quality of storage = {}.').format(storage)
-    print('The quality of encoding = {}.').format(encoding)
-    print('The quality of formatting = {}.').format(format)
-    print('The quality of disjoint datasets = {}.').format(disjoint)
+    print('The quality of parsing = {}.'.format(parse))
+    print('The quality of storage = {}.'.format(storage))
+    print('The quality of encoding = {}.'.format(encoding))
+    print('The quality of formatting = {}.'.format(format))
+    print('The quality of disjoint datasets = {}.'.format(disjoint))
 
     return (parse + storage + encoding + format + disjoint)
+
+
+path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+df = pd.read_csv(path + '/data.csv')
+
+quality_band_C(df, path + '/data.csv')

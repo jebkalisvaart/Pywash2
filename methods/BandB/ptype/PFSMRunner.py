@@ -1,10 +1,10 @@
 import sys
 sys.path.insert(0,'Col_type_PFSM/')
 
-from methods.BandB.ptype.PFSM_DiscriminativeLearning import IntegersNewAuto, StringsNewAuto, AnomalyNew, FloatsNewAuto, MissingsNew, BooleansNew, Genders, \
+from Pywash2.methods.BandB.ptype.PFSM_DiscriminativeLearning import IntegersNewAuto, StringsNewAuto, AnomalyNew, FloatsNewAuto, MissingsNew, BooleansNew, Genders, \
     ISO_8601NewAuto, Date_EUNewAuto, Nonstd_DateNewAuto, SubTypeNonstdDateNewAuto, IPAddress, EmailAddress
 
-from methods.BandB.ptype.utils import contains_all
+from Pywash2.methods.BandB.ptype.utils import contains_all
 MACHINES = {'integer':IntegersNewAuto(), 'string':StringsNewAuto(), 'float':FloatsNewAuto(), 'boolean':BooleansNew(),
             'gender':Genders(), 'date-iso-8601':ISO_8601NewAuto(), 'date-eu':Date_EUNewAuto(),
             'date-non-std-subtype':SubTypeNonstdDateNewAuto(), 'date-non-std': Nonstd_DateNewAuto(), 

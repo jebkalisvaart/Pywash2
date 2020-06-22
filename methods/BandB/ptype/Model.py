@@ -1,6 +1,6 @@
-from methods.BandB.ptype.utils import normalize_log_probs, log_weighted_sum_probs, log_weighted_sum_probs_check, print_to_file, log_weighted_sum_normalize_probs
+from Pywash2.methods.BandB.ptype.utils import normalize_log_probs, log_weighted_sum_probs, log_weighted_sum_probs_check, print_to_file, log_weighted_sum_normalize_probs
 from scipy import optimize
-from methods.BandB.ptype.Config import Config
+from Pywash2.methods.BandB.ptype.Config import Config
 import numpy as np
 import time
 import sys

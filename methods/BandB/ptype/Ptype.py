@@ -1,16 +1,16 @@
 # Mainly text manipulation utils
-from methods.BandB.ptype.utils import create_folders
+from Pywash2.methods.BandB.ptype.utils import create_folders
 
 # Latex, and visualization utils
-from methods.BandB.ptype.utils import print_to_file, save_object
+from Pywash2.methods.BandB.ptype.utils import print_to_file, save_object
 
 import csv
 import numpy as np
 import os
 
-from methods.BandB.ptype.Config import Config
-from methods.BandB.ptype.Model import PtypeModel
-from methods.BandB.ptype.PFSMRunner import PFSMRunner
+from Pywash2.methods.BandB.ptype.Config import Config
+from Pywash2.methods.BandB.ptype.Model import PtypeModel
+from Pywash2.methods.BandB.ptype.PFSMRunner import PFSMRunner
 from scipy.stats import norm
 
 class Ptype:
