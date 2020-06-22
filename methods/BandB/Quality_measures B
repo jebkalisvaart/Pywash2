@@ -1,5 +1,6 @@
 import pandas as pd
 from Pywash2.methods.BandB.ptype.Ptype import Ptype
+from Pywash2.methods.BandB.check_categorical_distr import check_distr
 import numpy as np
 
 def column_types_measure(df):
@@ -27,9 +28,9 @@ def column_types_measure(df):
 
     ##TODO
     # get user input to verify which columns were predicted correctly
-    #quality_column_types = number_correctly_classfied/df.shape[1] * 100
+    #quality_measure = number_correctly_classfied/df.shape[1] * 100
 
-    return predicted #should be quality_column_types when available.
+    return quality_measure
 
 def set_missing(col):
 
@@ -80,15 +81,21 @@ def inconsistent_entries_measure(df):
     ----------
     df : the dataframe that needs analyzing.
 
+    user_input : User needs to verify if the distribution of the catagorical variables could be right or is off.
+
     Returns
     -------
     quality_measure : A quality measure depending on the amount of wrong entries in the dataframe.
     '''
+    lst = check_distr(df)
 
     ##TODO
-    # Needs to be looked at, something with the distribution of the variables.
+    # User needs to verify whether the amount of unique entries in lst could be right.
 
-    return
+    # quality_measure = correct_columns / df.shape[1] * 100
+
+
+    return quality_measure
 
 def duplicate_records_measure(df):
     '''
@@ -134,38 +141,32 @@ def meaningful_values_measure(df):
     # requires user input to say something about if the values that are in the columns are meaningful. Yes/No will
     # suffice.
 
-    def quality_band_B(df):
-        '''
-        Performs all quality measures of band B in one function.
-        Parameters
-        ----------
-        df : Dataframe that needs to be checked.
-        file_path : path to the dataframe that needs to be checked.
+    quality_measure = number_useful_columns / df.shape[1] * 100
+    return quality_measure
 
-        Returns
-        -------
-        out_df : Quality measures of band B in a DataFrame format.
-        '''
-        columns = column_types_measure(df)
-        missing = missing_values_measure(df)
-        inconsistent = inconsistent_entries_measure(file_path)
-        duplicate = duplicate_records_measure(df)
-        meaningful = meaningful_values_measure()
+def quality_band_B(df):
+    '''
+    Performs all quality measures of band B in one function.
+    Parameters
+    ----------
+    df : Dataframe that needs to be checked.
+    file_path : path to the dataframe that needs to be checked.
 
-        output_lst = [columns, missing, inconsistent, duplicate, meaningful]
-        index = ['columns', 'missing', 'inconsistent', 'duplicate', 'meaningful']
+    Returns
+    -------
+    out_df : Quality measures of band B in a DataFrame format.
+    '''
+    columns = column_types_measure(df)
+    missing = missing_values_measure(df)
+    inconsistent = inconsistent_entries_measure(file_path)
+    duplicate = duplicate_records_measure(df)
+    meaningful = meaningful_values_measure()
 
-        out_df = pd.DataFrame(output_lst, index=index, columns=['Measures'])
-        return out_df
+    output_lst = [columns, missing, inconsistent, duplicate, meaningful]
+    index = ['columns', 'missing', 'inconsistent', 'duplicate', 'meaningful']
 
-
-
-
-
-
-
-
-
+    out_df = pd.DataFrame(output_lst, index=index, columns=['Measures'])
+    return out_df
 
 
 path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"

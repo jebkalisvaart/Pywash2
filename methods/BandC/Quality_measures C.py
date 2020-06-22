@@ -2,7 +2,6 @@ import pandas as pd
 from Pywash2.methods.BandC.ParserUtil import assign_parser
 from Pywash2.methods.BandB.ptype.Ptype import Ptype
 
-
 def parse_ability_measure(df):
     '''Checks whether the application read the data appropriately in terms of parsing
 
@@ -162,8 +161,8 @@ def quality_band_C(df, file_path):
 
 
 
-path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
-df = pd.read_csv(path + '/data.csv')
-
-a = quality_band_C(df, path + '/data.csv')
-print(a)
+# path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+# df = pd.read_csv(path + '/data.csv')
+#
+# a = quality_band_C(df, path + '/data.csv')
+# print(a)
