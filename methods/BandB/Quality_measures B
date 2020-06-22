@@ -1,5 +1,6 @@
 import pandas as pd
 from Pywash2.methods.BandB.ptype.Ptype import Ptype
+import numpy as np
 
 def column_types_measure(df):
 
@@ -17,9 +18,36 @@ def column_types_measure(df):
 
     return predicted #should be quality_column_types when available.
 
+def set_missing(col):
+    # Set common missing value place holders of a column to a missing dtype
+    place_holders = ['NA', 'na', 'nan', 'NAN', 'NaN', '?',
+                     'None', 'NONE', 'none', np.nan]
+    col[col.isin(place_holders)] = np.nan
+    return col
+
+
+def repl_with_na(df):
+    # Replace common missing value place holders the dataset to a missing dtype
+    return df.apply(set_missing)
+
+
 def missing_values_measure(df):
+    # print(df.isna().sum().sum())
+    df = repl_with_na(df)
+    # print(df.isna().sum().sum())
+
+    perc_na = df.isna().sum().sum() / (df.shape[0] * df.shape[1]) * 100
+    if perc_na < 5:
+        quality_measure = 1
+    elif perc_na <= 10 and perc_na >= 5:
+        quality_measure = 0.5
+    elif perc_na <= 25 and perc_na > 10:
+        quality_measure = 0.25
+    else:
+        quality_measure = 0
+    return quality_measure
 
 
 path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
 df = pd.read_csv(path + '/data.csv')
-a = column_types_measures(df)
+a = missing_values_measure(df)
