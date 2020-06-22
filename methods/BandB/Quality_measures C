@@ -1,0 +1,25 @@
+import pandas as pd
+from Pywash2.methods.BandB.ptype.Ptype import Ptype
+
+def column_types_measure(df):
+
+    convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
+                   'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
+                   'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
+                   'all-identical': 'category'}
+    ptype = Ptype()
+    ptype.run_inference(df)
+    predicted = ptype.predicted_types
+
+    ##TODO
+    # get user input to verify which columns were predicted correctly
+    #quality_column_types = number_correctly_classfied/df.shape[1] * 100
+
+    return predicted #should be quality_column_types when available.
+
+def missing_values_measure(df):
+
+
+path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+df = pd.read_csv(path + '/data.csv')
+a = column_types_measures(df)

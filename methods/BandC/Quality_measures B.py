@@ -143,9 +143,10 @@ def quality_band_C(df, file_path):
     ----------
     df : Dataframe that needs to be checked.
     file_path : path to the dataframe that needs to be checked.
+
     Returns
     -------
-    quality_measure : Quality measure of band C.
+    out_df : Quality measures of band C in a DataFrame format.
     '''
     parse = parse_ability_measure(df)
     storage = data_storage_measure(df)
@@ -153,16 +154,16 @@ def quality_band_C(df, file_path):
     format = data_formats_measure(df)
     disjoint = disjoint_datasets_measure()
 
-    print('The quality of parsing = {}.'.format(parse))
-    print('The quality of storage = {}.'.format(storage))
-    print('The quality of encoding = {}.'.format(encoding))
-    print('The quality of formatting = {}.'.format(format))
-    print('The quality of disjoint datasets = {}.'.format(disjoint))
+    output_lst = [parse, storage, encoding, format, disjoint]
+    index = ['parsing', 'storage', 'encoding', 'formatting', 'disjoint']
 
-    return (parse + storage + encoding + format + disjoint)
+    out_df = pd.DataFrame(output_lst, index = index, columns=['Measures'])
+    return out_df
+
 
 
 path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
 df = pd.read_csv(path + '/data.csv')
 
-quality_band_C(df, path + '/data.csv')
+a = quality_band_C(df, path + '/data.csv')
+print(a)
