@@ -15,6 +15,9 @@ from pyod.models.ocsvm import OCSVM
 from pyod.models.lof import LOF
 from pyod.models.iforest import IForest
 from pyod.models.lscp import LSCP
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
 
 def interpretable_values(df):
     '''
@@ -66,7 +69,7 @@ def feature_scaling(df):
     count_continuous_vars = 0
     for key in predicted:
         # print(key, predicted[key])
-        if predicted[key] == 'string' or predicted[key] == 'float':
+        if predicted[key] == 'int' or predicted[key] == 'float':
 
             try:
                 pd.to_numeric(df[key])
@@ -117,14 +120,62 @@ def outlier_detection(df):
         quality_measure = 0
     return quality_measure
 
+def feature_selection(df):
+    convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
+                   'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
+                   'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
+                   'all-identical': 'category'}
+    ptype = Ptype()
+    ptype.run_inference(df)
+    predicted = ptype.predicted_types
+    count_normal_vars = 0
+    count_continuous_vars = 0
+    features = []
+    for key in predicted:
+        # print(key, predicted[key])
+        if predicted[key] == 'int' or predicted[key] == 'float':
+            features.append(key)
+    x = df.loc[:, features].values
+    x = StandardScaler().fit_transform(x)
+    x = pd.DataFrame(x)
+    ## TODO
+    # User input is needed to select which variable should be the Y variable in prediction. Otherwise we cannot
+    # say anything about the information within one variable except for its variance.
 
 
-# path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
-# df = pd.read_csv(path + '/data.csv')
-# a = outlier_detection(df)
-# print(a)
 
-path = "C:/Users/20175848/Dropbox/Data Science Y3/Cognitive science"
-df = pd.read_csv(path + '/rec_tracks.csv')
-a = outlier_detection(df)
+    return
+
+def coverage_gap(df, timeorder = second):
+    convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
+                   'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
+                   'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
+                   'all-identical': 'category'}
+    ptype = Ptype()
+    ptype.run_inference(df)
+    predicted = ptype.predicted_types
+    features = []
+    for key in predicted:
+        print(key, predicted[key])
+        if predicted[key] == 'datetime64[ns]':
+            interval = df[key][2] - df[key][1]
+            base = col.index[0].timeorder # asuming the time interval is in seconds.
+            ## TODO
+            # Ask user input in order to check at what time order (sec/min/hours/days) the data should occur.
+            complete = x.resample(interval, base=base).mean()
+            missing = complete.isna().sum()
+    quality_measure = complete / missing * 100
+
+    return quality_measure
+
+
+
+path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+df = pd.read_csv(path + '/data.csv')
+a = coverage_gap(df)
 print(a)
+
+# path = "C:/Users/20175848/Dropbox/Data Science Y3/Cognitive science"
+# df = pd.read_csv(path + '/rec_tracks.csv')
+# a = coverage_gap(df)
+# print(a)
