@@ -160,9 +160,8 @@ def quality_band_C(df, file_path):
     return out_df
 
 
-
+#
 # path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
 # df = pd.read_csv(path + '/data.csv')
-#
 # a = quality_band_C(df, path + '/data.csv')
 # print(a)

@@ -17,6 +17,14 @@ from pyod.models.iforest import IForest
 from pyod.models.lscp import LSCP
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+import matplotlib
+import matplotlib.pyplot as plt
+import seaborn as sns
+# import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import RidgeCV, LassoCV, Ridge, Lasso
 
 
 def interpretable_values(df):
@@ -35,13 +43,15 @@ def interpretable_values(df):
     '''
     ##TODO
     #userinput whether the data is documented, partially documented or not documented.
-
-    if user_input == 'not documented':
+    try:
+        if user_input == 'not documented':
+            quality_measure = 0
+        elif user_input == 'partially documented':
+            quality_measure = 0.5
+        if user_input == 'documented':
+            quality_measure = 1
+    except:
         quality_measure = 0
-    elif user_input == 'partially documented':
-        quality_measure = 0.5
-    if user_input == 'documented':
-        quality_measure = 1
     return quality_measure
 
 def feature_scaling(df):
@@ -120,7 +130,7 @@ def outlier_detection(df):
         quality_measure = 0
     return quality_measure
 
-def feature_selection(df):
+def feature_selection(df, target):
     convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
                    'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
                    'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
@@ -138,15 +148,47 @@ def feature_selection(df):
     x = df.loc[:, features].values
     x = StandardScaler().fit_transform(x)
     x = pd.DataFrame(x)
-    ## TODO
-    # User input is needed to select which variable should be the Y variable in prediction. Otherwise we cannot
-    # say anything about the information within one variable except for its variance.
+    x.columns = features
 
 
+    X = x.drop(target, 1)  # Feature Matrix
+    y = x[target]  # Target Variable
 
-    return
+    # no of features
+    nof_list = np.arange(1, len(features))
+    high_score = 0
+    # Variable to store the optimum features
+    nof = 0
+    score_list = []
+    for n in range(len(nof_list)):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+        model = LinearRegression()
+        rfe = RFE(model, nof_list[n])
+        X_train_rfe = rfe.fit_transform(X_train, y_train)
+        X_test_rfe = rfe.transform(X_test)
+        model.fit(X_train_rfe, y_train)
+        score = model.score(X_test_rfe, y_test)
+        score_list.append(score)
+        if (score > high_score):
+            high_score = score
+            nof = nof_list[n]
+    # print("Optimum number of features: %d" % nof)
+    # print("Score with %d features: %f" % (nof, high_score))
+    cols = list(X.columns)
+    model = LinearRegression()
+    # Initializing RFE model
+    rfe = RFE(model, nof)
+    # Transforming data using RFE
+    X_rfe = rfe.fit_transform(X, y)
+    # Fitting the data to model
+    model.fit(X_rfe, y)
+    temp = pd.Series(rfe.support_, index=cols)
+    selected_features_rfe = temp[temp == True].index
 
-def coverage_gap(df, timeorder = second):
+    quality_measure = nof/len(features)
+    return quality_measure
+
+def coverage_gap(df, interval):
     convert_dct = {'integer': 'int64', 'string': 'object', 'float': 'float64', 'boolean': 'bool',
                    'date-iso-8601': 'datetime64[ns]', 'date-eu': 'datetime64[ns]',
                    'date-non-std-subtype': 'datetime64[ns]', 'date-non-std': 'datetime64[ns]', 'gender': 'category',
@@ -154,28 +196,57 @@ def coverage_gap(df, timeorder = second):
     ptype = Ptype()
     ptype.run_inference(df)
     predicted = ptype.predicted_types
-    features = []
+    count = 0
     for key in predicted:
-        print(key, predicted[key])
-        if predicted[key] == 'datetime64[ns]':
-            interval = df[key][2] - df[key][1]
-            base = col.index[0].timeorder # asuming the time interval is in seconds.
-            ## TODO
-            # Ask user input in order to check at what time order (sec/min/hours/days) the data should occur.
-            complete = x.resample(interval, base=base).mean()
-            missing = complete.isna().sum()
-    quality_measure = complete / missing * 100
+        if predicted[key] in ['datetime64[ns]', 'date-eu', 'date-iso-8601', 'date-non-std-subtype', 'date-non-std']:
+            count += 1
+            df[key] = pd.to_datetime(df[key])
+            new_df = df.resample(interval, on=key, base=0).mean()
+            missing = new_df.isna().count()
+            quality_measure = (len(new_df) - missing) / len(new_df) * 100
 
+    if count == 0:
+        quality_measure = 1
     return quality_measure
 
 
+def quality_band_A(df, target, interval):
+    '''
+    Performs all quality measures of band B in one function.
+    Parameters
+    ----------
+    df : Dataframe that needs to be checked.
+    file_path : path to the dataframe that needs to be checked.
 
-path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
-df = pd.read_csv(path + '/data.csv')
-a = coverage_gap(df)
-print(a)
+    Returns
+    -------
+    out_df : Quality measures of band B in a DataFrame format.
+    '''
+    inter = interpretable_values(df)
+    scaling = feature_scaling(df)
+    outlier = outlier_detection(df)
+    selection = feature_selection(df, target)
+    coverage = coverage_gap(df, interval)
+
+    output_lst = [inter, scaling, outlier, selection, coverage]
+    index = ['interpretable values', 'scaling', 'outlier', 'feature selection', 'gap-coverage']
+
+    out_df = pd.DataFrame(output_lst, index=index, columns=['Measures'])
+    return out_df
+
+
+
+# path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+# df = pd.read_csv(path + '/data.csv')
+# a = feature_selection(df)
+# print(a)
 
 # path = "C:/Users/20175848/Dropbox/Data Science Y3/Cognitive science"
 # df = pd.read_csv(path + '/rec_tracks.csv')
-# a = coverage_gap(df)
+# a = quality_band_C(df, 'timestamp', '3Y')
+# print(a)
+
+# path = "C:/Users/20175848/Dropbox/Data Science Y2/Q4/Business analytics/R/Business analytics/HPI.csv"
+# df = pd.read_csv(path, sep=';')
+# a = quality_band_C(df, 'timestamp', '3Y')
 # print(a)

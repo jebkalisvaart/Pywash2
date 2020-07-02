@@ -29,6 +29,11 @@ def column_types_measure(df):
     ##TODO
     # get user input to verify which columns were predicted correctly
     #quality_measure = number_correctly_classfied/df.shape[1] * 100
+    try:
+        if userinput == True:
+            quality_measure = ratio_of_correct_columns
+    except:
+        quality_measure = 0
 
     return quality_measure
 
@@ -93,7 +98,11 @@ def inconsistent_entries_measure(df):
     # User needs to verify whether the amount of unique entries in lst could be right.
 
     # quality_measure = correct_columns / df.shape[1] * 100
-
+    try:
+        if userinput == True:
+            quality_measure = ratio_of_correct_columns
+    except:
+        quality_measure = 0
 
     return quality_measure
 
@@ -140,8 +149,13 @@ def meaningful_values_measure(df):
     ##TODO
     # requires user input to say something about if the values that are in the columns are meaningful. Yes/No will
     # suffice.
+    try:
+        if userinput == True:
+            quality_measure = number_useful_columns / df.shape[1] * 100
+    except:
+        quality_measure = 0
 
-    quality_measure = number_useful_columns / df.shape[1] * 100
+
     return quality_measure
 
 def quality_band_B(df):
@@ -169,7 +183,7 @@ def quality_band_B(df):
     return out_df
 
 
-path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
-df = pd.read_csv(path + '/data.csv')
-a = quality_band_B(df)
-print(a)
+# path = "C:/DataScience/ptype-datasets/main/main/data.gov/3397_1"
+# df = pd.read_csv(path + '/data.csv')
+# a = quality_band_B(df)
+# print(a)
